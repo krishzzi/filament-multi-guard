@@ -76,8 +76,29 @@ abstract class ContextServiceProvider extends PluginServiceProvider
                 ->group(function () {
                     Route::prefix($this->contextConfig('path'))->group(
                         function () {
-                            $loginPage = $this->contextConfig('auth.pages.login');
 
+//                            if (static::$name == 'member-panel')
+//                            {
+//                                dd(static::$name,$this->contextConfig('middleware.auth'));
+//                            }
+
+
+                            // Register
+                            $registerPage = $this->contextConfig('auth.pages.register');
+                            if ($registerPage) {
+                                Route::get('/register', $registerPage)->name('auth.register');
+                                $guard = $this->contextConfig('auth.guard');
+                            }
+
+                            // Forget
+                            $forgetPage = $this->contextConfig('auth.pages.forget');
+                            if ($forgetPage) {
+                                Route::get('/forget', $forgetPage)->name('auth.forget');
+                                $guard = $this->contextConfig('auth.guard');
+                            }
+
+                            // Login & Logout
+                            $loginPage = $this->contextConfig('auth.pages.login');
                             if ($loginPage) {
                                 Route::get('/login', $loginPage)->name('auth.login');
                                 $guard = $this->contextConfig('auth.guard');

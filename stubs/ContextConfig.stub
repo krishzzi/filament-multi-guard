@@ -52,7 +52,9 @@ return [
     'pages' => [
         'namespace' => '{{ namespace }}\\Pages',
         'path' => app_path('{{ path }}/Pages'),
-        'register' => [],
+        'register' => [
+            {{ contextPages }}
+        ],
     ],
 
     /*
@@ -118,7 +120,7 @@ return [
     'auth' => [
         'guard' => env('FILAMENT_AUTH_GUARD', 'web'),
         'pages' => [
-            'login' => \Filament\Http\Livewire\Auth\Login::class,
+            {{ pages }}
         ],
     ],
 
@@ -134,7 +136,8 @@ return [
 
     'middleware' => [
         'auth' => [
-            Authenticate::class,
+           // Authenticate::class,
+            {{ contextMiddleware }}
         ],
         'base' => [
             EncryptCookies::class,

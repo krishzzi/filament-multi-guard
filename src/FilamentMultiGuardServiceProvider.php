@@ -4,6 +4,8 @@ namespace Iotronlab\FilamentMultiGuard;
 
 use Iotronlab\FilamentMultiGuard\Commands\FilamentContextCommand;
 use Iotronlab\FilamentMultiGuard\Commands\FilamentGuardCommand;
+use Iotronlab\FilamentMultiGuard\Commands\FilamentMultiGuardCommand;
+use Iotronlab\FilamentMultiGuard\Commands\MultiGuardRemoveCommand;
 use Iotronlab\FilamentMultiGuard\Http\Middleware\ApplyContext;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
@@ -18,7 +20,10 @@ class FilamentMultiGuardServiceProvider extends PackageServiceProvider
             ->hasCommands([
                 FilamentContextCommand::class,
                 FilamentGuardCommand::class,
-            ]);
+                FilamentMultiGuardCommand::class,
+                MultiGuardRemoveCommand::class
+            ])
+            ->hasViews();
     }
 
     public function packageRegistered(): void
