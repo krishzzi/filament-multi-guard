@@ -90,10 +90,14 @@ abstract class ContextServiceProvider extends PluginServiceProvider
                                 $guard = $this->contextConfig('auth.guard');
                             }
 
-                            // Forget
+                            // Forget Password Reset
                             $forgetPage = $this->contextConfig('auth.pages.forget');
                             if ($forgetPage) {
-                                Route::get('/forget', $forgetPage)->name('auth.forget');
+
+                                Route::get("/password/reset", $forgetPage)->name("password.request");
+
+                                Route::get("/password/reset/{token}", $forgetPage)->name("password.reset");
+
                                 $guard = $this->contextConfig('auth.guard');
                             }
 

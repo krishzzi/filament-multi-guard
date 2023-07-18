@@ -3,10 +3,121 @@
 namespace {{ namespace }};
 
 
+use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Iotronlab\FilamentMultiGuard\Concerns\ContextualPage;
+use Iotronlab\FilamentMultiGuard\FilamentMultiGuard;
+use Filament\Forms;
+
+
 
 class Profile extends Page
 {
     use ContextualPage;
+
+    protected static string $view = "filament-multi-guard::filament.pages.profile";
+
+    public $user;
+    public $current_password;
+    public $new_password;
+    public $new_password_confirmation;
+    public $model;
+    public $currentGuard;
+    public string  $currentContext;
+
+
+    public function mount()
+    {
+        $this->user = Filament::auth()->user();
+        $this->updateProfileForm->fill($this->user->toArray());
+        $this->currentContext = Filament::currentContext();
+        $this->currentGuard = config($this->currentContext)['auth']['guard'];
+        $modelProvider = config('auth.guards')[$this->currentGuard]['provider'];
+        $this->model = config('auth.providers')[$modelProvider]['model'];
+    }
+
+
+    protected function getForms(): array
+    {
+        return array_merge(parent::getForms(), [
+            "updateProfileForm" => $this->makeForm()
+                ->model(config('filament-breezy.user_model'))
+                ->schema($this->getUpdateProfileFormSchema())
+                ->statePath('userData'),
+            "updatePasswordForm" => $this->makeForm()->schema(
+                $this->getUpdatePasswordFormSchema()
+            ),
+        ]);
+    }
+
+
+
+    protected function getUpdateProfileFormSchema(): array
+    {
+        return [
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->label(__('Name')),
+            Forms\Components\TextInput::make('email')
+                ->required()
+                ->email()
+                ->unique($this->model, ignorable: $this->user)
+                ->label(__('Email')),
+        ];
+    }
+
+
+
+    protected function getUpdatePasswordFormSchema(): array
+    {
+        return [
+            Forms\Components\TextInput::make('current_password')
+                ->label('Current Password')
+                ->password()
+                ->rules(['required_with:new_password'])
+                ->currentPassword()
+                ->autocomplete('off')
+                ->columnSpan(1),
+            Forms\Components\TextInput::make("new_password")
+                ->label(__('New Password'))
+                ->password()
+                ->rules(app(FilamentMultiGuard::class)->getPasswordRules())
+                ->required(),
+            Forms\Components\TextInput::make("new_password_confirmation")
+                ->label(__('Confirm Password'))
+                ->password()
+                ->same("new_password")
+                ->required(),
+        ];
+    }
+
+
+    public function updateProfile()
+    {
+        $this->user->update($this->updateProfileForm->getState());
+        $this->notify("success", __('Profile updated successfully!'));
+    }
+
+
+    public function updatePassword()
+    {
+        $state = $this->updatePasswordForm->getState();
+        $this->user->password = Hash::make($state["new_password"]);
+        $this->user->save();
+        // Update the password hash in the session
+        Session::put('password_hash_'.config(Filament::currentContext().'.auth.guard'), $this->user->password);
+        // Regenerate the CSRF token
+        Session::regenerateToken();
+        $this->notify("success", __('Password Update Successfuly'),true);
+        $this->reset(["new_password", "new_password_confirmation","current_password"]);
+    }
+
+
+
+
+
+
+
 }

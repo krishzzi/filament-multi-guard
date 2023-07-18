@@ -11,6 +11,7 @@ class FilamentMultiGuard
 {
     use ForwardsCalls;
 
+    protected static array $passwordRules = [];
     protected array $contexts = [];
 
     protected ?string $currentContext = null;
@@ -83,6 +84,20 @@ class FilamentMultiGuard
 
         return auth()->guard(config("{$context}.auth.guard", config('filament.auth.guard')));
     }
+
+
+
+    public static function getPasswordRules(): array
+    {
+        return static::$passwordRules;
+    }
+
+    public static function setPasswordRules(array $rules)
+    {
+        static::$passwordRules = $rules;
+    }
+
+
 
     /**
      * Dynamically handle calls into the filament instance.

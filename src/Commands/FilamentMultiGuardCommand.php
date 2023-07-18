@@ -38,6 +38,7 @@ class FilamentMultiGuardCommand extends MultiGuardAbstractCommand
                 'Login' => 'ContextSignin',
                 'Register' => 'ContextRegister',
                 'Forget' => 'ContextForget',
+                'Verify' => 'ContextVerify',
             ],
             'pages' => [
                 'Dashboard' => 'Dashboard',
